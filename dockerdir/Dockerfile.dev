@@ -47,11 +47,4 @@ RUN useradd -m myuser \
 
 # Set working directory
 WORKDIR /var/www/
-RUN composer create-project --prefer-dist laravel/laravel ${appname}
 
-# Adjust permissions for Laravel directories within the app directory
-RUN chown -R www-data:www-data /var/www/${appname}/storage /var/www/${appname}/bootstrap/cache \
-    && chmod -R 775 /var/www/${appname}/storage /var/www/${appname}/bootstrap/cache
-
-# Set the working directory to the Laravel app
-WORKDIR /var/www/${appname}
