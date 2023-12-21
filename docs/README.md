@@ -11,7 +11,7 @@ docker & docker compose
 It's assumed that you are adding this to an existing project.
 
 Copy all files except `.env` and `readme.md` in your current project folder. 
-Overwrite the credentials from your `.env` locally with those provided here. 
+Overwrite the credentials from your `.env` locally with those provided later in this readme.
 If you dont want to overwrite database name and user, then please adjust the file in `docker-compose/mysql/init/db.sql` according to your needs.
 
 
@@ -25,7 +25,7 @@ Run container (the project name can be anything)
 this may take a moment. After the container has been setup, check the status with
 
   ```sh
-  docker-compose ps
+  docker ps
   ```
 
 you should see three containers are running.
