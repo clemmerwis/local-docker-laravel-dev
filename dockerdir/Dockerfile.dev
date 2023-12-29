@@ -1,8 +1,5 @@
 FROM php:8.2-fpm
 
-# Arguments defined in docker-compose.yml
-ARG appname
-
 # Install system dependencies, Node.js, Vite, and PHP extensions
 RUN apt-get update && apt-get install -y \
     libmemcached-dev \
@@ -44,6 +41,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Create a new user and set ownership
 RUN useradd -m myuser \
     && chown -R myuser:myuser /var/www/
+
+# Adjust permissions for Laravel directories
+RUN if [ -d "/var/www/storage" ]; then chown -R www-data:www-data /var/www/storage && chmod -R 775 /var/www/storage; fi \
+    && if [ -d "/var/www/bootstrap/cache" ]; then chown -R www-data:www-data /var/www/bootstrap/cache && chmod -R 775 /var/www/bootstrap/cache; fi
 
 # Set working directory
 WORKDIR /var/www/

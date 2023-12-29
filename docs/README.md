@@ -1,7 +1,6 @@
 # About
 This repository contains everything you need to get started to run a 
-Laravel application with Docker as fast as possible.
-
+Laravel application with Docker as fast as possible-- using Ngninx, MySQL, and PHP 8.2.
 
 # Setup Requirements
 docker 
@@ -24,65 +23,97 @@ Run container (the project name can be anything)
   docker compose -p project-name build
   ```
 
-this may take a moment. After the container has been setup, check the status with
+## Step 1: Create the project directory & Clone this repo
+```sh
+mkdir ~/example-path/appex-project/
+cd ~/example-path/appex-project/
+git clone git@github.com:clemmerwis/local-docker-laravel-dev.git
+```
 
-  ```sh
-  docker ps
-  ```
+## Step 2: Edit the docker-compose.yml
+select all occurences of "appex" and edit to match the name of your project.
 
-you should see three containers are running.
+Note! Update all volume paths to match your local project path
+```sh
+volumes:
+  - ~/myComp/web-work/local-docker-dev/appex-project/appex:/var/www
+  
+  Example:
+  - ~/example-path/appex-project/appex:/var/www
+```
 
+## Step 3: Clone your repo into the project directory & set up Vite config
+```sh
+cd ~/example-path/appex-project/
+git clone git@github.com:your-name/your-repo.git
+```
 
-## Step 3: Install Composer dependencies
-Bash into your container:
+Once you cloned your app into the project directory, replace the vite-config.js with the one that comes with this repo.
 
-  ```sh
-  docker compose exec -it app_container_id bash
-  ```
+## Step 4: Build with Docker 
+docker compose -p {appname} build
 
-Note*: These commands can be run from inside that container
+```sh
+cd ~/example-path/appex-project/dockerdir
+docker compose -p appex build 
+```
 
-  ```
-  container> vendor/bin/phpunit"
-  container> php artisan"
-  container> composer"
-  ```
+Once the containers are built, you can launch the newly created Docker environment.
 
-Install composer dependencies (this may also take a moment):
+```sh
+cd ~/example-path/appex-project/
+docker compose -p appex up -d
+```
 
-  ```sh
-  composer install
-  ```
+After the above command, there should be 4 containers running: Nginx, MySQL, App, & Redis.
 
-and finally generate a key
+## Step 4: Install & Start the App
+Now enter the app container
 
-  ```sh
-  php artisan key:generate
-  ```
+```sh
+docker compose ps
+```
 
-The app should now be accessible under `localhost:8005`
+The command above will display a list of running containers. Copy the id of the app container.
 
+```sh
+docker exec -it {app_container_id} bash
+```
 
-# Enhancements
-These commands can be run from the
+once inside the var/www directory, run the following commands in order.
 
-  ```
-  container> vendor/bin/phpunit"
-  container> php artisan"
-  container> composer"
-  ```
+```sh
+composer install
+npm install --save-dev @vitejs/plugin-vue
+php artisan key:generate
+php artisan migrate:fresh --seed
+npm run dev
+```
 
-Also, if you want to keep you laravel docker container
-running after a restart of your computer, you may add
+The last command should start the app on localhost. Open the welcome.blade.php
+and test if Vite is HMR is working. You should see a loading symbol in the browser tab if the HMR is working, it may take longer than expected.
 
-  ```
-  restart: unless-stopped
-  ```
+## Final Notes
+Stop the project
 
-to each of your services (app,db,nginx).
+```sh
+docker compose -p {appname} stop 
+```
 
+Start the project
 
+```sh
+docker compose -p {appname} start 
+```
 
+Destroy the containers
 
+```sh
+docker compose -p {appname} down 
+```
 
+Build the containers
 
+```sh
+docker compose -p {appname} build --no-cache
+```
