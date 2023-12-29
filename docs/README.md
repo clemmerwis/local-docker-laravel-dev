@@ -4,7 +4,9 @@ Laravel application with Docker as fast as possible.
 
 
 # Setup Requirements
-docker & docker compose
+docker 
+git
+laravel cli installer
 
 
 ## Step 1: Copy files in your directory
