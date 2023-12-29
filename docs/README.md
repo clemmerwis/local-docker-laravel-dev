@@ -3,8 +3,10 @@ This repository contains everything you need to get started to run a
 Laravel application with Docker as fast as possible-- using Ngninx, MySQL, and PHP 8.2.
 
 # Setup Requirements
-docker 
+docker
+
 git
+
 laravel cli installer
 
 
@@ -33,6 +35,26 @@ git clone git@github.com:clemmerwis/local-docker-laravel-dev.git
 ## Step 2: Edit the docker-compose.yml
 select all occurences of "appex" and edit to match the name of your project.
 
+Note! Don't include hyphens in your database environment
+```sh
+This is good!
+  mysql:
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+      - MYSQL_DATABASE=appex
+      - MYSQL_USER=appex_user
+      - MYSQL_PASSWORD=appex_pass
+
+This is bad. Don't use hyphens!
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+      - MYSQL_DATABASE=app-example
+      - MYSQL_USER=app-example_user
+      - MYSQL_PASSWORD=app-example_pass
+```
+
 Note! Update all volume paths to match your local project path
 ```sh
 volumes:
@@ -46,9 +68,14 @@ volumes:
 ```sh
 cd ~/example-path/appex-project/
 git clone git@github.com:your-name/your-repo.git
+
+Or
+
+cd ~/example-path/appex-project/
+laravel new appex
 ```
 
-Once you cloned your app into the project directory, replace the vite-config.js with the one that comes with this repo.
+Once you your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
 
 ## Step 4: Build with Docker 
 docker compose -p {appname} build
