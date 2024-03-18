@@ -10,21 +10,6 @@ git
 laravel cli installer
 
 
-## Step 1: Copy files in your directory
-It's assumed that you are adding this to an existing project.
-
-Copy all files except `.env` and `readme.md` in your current project folder. 
-Overwrite the credentials from your `.env` locally with those provided later in this readme.
-If you dont want to overwrite database name and user, then please adjust the file in `docker-compose/mysql/init/db.sql` according to your needs.
-
-
-## Step 2: Execute docker
-Run container (the project name can be anything)
-
-  ```sh
-  docker compose -p project-name build
-  ```
-
 ## Step 1: Create the project directory & Clone this repo
 ```sh
 mkdir ~/example-path/appex-project/
@@ -73,6 +58,22 @@ Or
 
 cd ~/example-path/appex-project/
 laravel new appex
+```
+
+Also make sure db creds in `.env` match those in the docker-compose.yml `mysql environment variables`.
+```sh
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=appex
+DB_USERNAME=appex_user
+DB_PASSWORD=appex_pass
+
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_HOST="${PUSHER_HOST}"
+VITE_PUSHER_PORT="${PUSHER_PORT}"
+VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 ```
 
 Once you your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
