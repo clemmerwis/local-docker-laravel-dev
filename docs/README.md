@@ -2,23 +2,19 @@
 This repository contains everything you need to get started to run a 
 Laravel application with Docker as fast as possible-- using Ngninx, MySQL, and PHP 8.2.
 
-# Setup Requirements
-docker
-
-git
-
-laravel cli installer
-
+# Setup Requirements for local machine
+docker & git
 
 ## Step 1: Create the project directory & Clone this repo
 ```sh
-mkdir ~/example-path/appex-project/
-cd ~/example-path/appex-project/
+mkdir ~/{example-path}/{appname}-project/
+cd ~/{example-path}/{appname}-project/
 git clone git@github.com:clemmerwis/local-docker-laravel-dev.git
 ```
 
 ## Step 2: Edit the docker-compose.yml
-select all occurences of "appex" and edit to match the name of your project.
+
+#### select all occurences of "appex" rename to "{appname}".
 
 Note! Don't include hyphens in your database environment
 ```sh
@@ -27,10 +23,10 @@ This is good!
     image: mysql:latest
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=my-secret-pw
-      - MYSQL_DATABASE=appex
-      - MYSQL_USER=appex_user
-      - MYSQL_PASSWORD=appex_pass
+      - MYSQL_ROOT_PASSWORD=my_secret_pw
+      - MYSQL_DATABASE={appname}
+      - MYSQL_USER={appname}_user
+      - MYSQL_PASSWORD={appname}_pass
 
 This is bad. Don't use hyphens!
     environment:
@@ -40,35 +36,99 @@ This is bad. Don't use hyphens!
       - MYSQL_PASSWORD=app-example_pass
 ```
 
-Note! Update all volume paths to match your local project path
+#### Update all volume & network references
+
+1. Name them at the bottom of the file
 ```sh
-volumes:
-  - ~/myComp/web-work/local-docker-dev/appex-project/appex:/var/www
-  
-  Example:
-  - ~/example-path/appex-project/appex:/var/www
+networks:
+  {appname}-network:
 ```
 
-## Step 3: Clone your repo into the project directory & set up Vite config
 ```sh
-cd ~/example-path/appex-project/
+volumes:
+  {appname}-mysql-data:
+```
+
+2. Update the containers
+```sh
+  nginx:
+    networks:
+      - {appname}-network
+
+  mysql:
+    networks:
+      - {appname}-network
+
+  app:
+    networks:
+      - {appname}-network
+```
+
+## Step 3: Build with Docker
+```sh
+cd ~/{example-path}/{appname}-project/
+mkdir {appname}
+
+cd ~/example-path/appex-project/dockerdir
+docker compose -p {appname} build
+```
+
+Once the containers are built, you can launch the newly created Docker environment.
+
+```sh
+docker compose -p {appname} up -d
+```
+
+After the above command, there should be 4 containers running: Nginx, MySQL, App, & Redis.
+
+## Step 4: Enter the App & Clone or create your repo into the project 
+Now enter the app container by listing the running containers
+
+```sh
+docker compose ps
+```
+
+Copy the id of the app container.
+
+```sh
+docker exec -it {app_container_id} bash
+```
+
+## Step 5: Clone or create your repo into the project directory
+
+The deafult folder inside that container should be set to: ':/var/www#'
+Inside of that folder utilize the conatainer's composer to create a new laravel project
+
+```sh
 git clone git@github.com:your-name/your-repo.git
 
 Or
 
-cd ~/example-path/appex-project/
-laravel new appex
+composer create-project laravel/laravel {appname}
 ```
 
-Also make sure db creds in `.env` match those in the docker-compose.yml `mysql environment variables`.
+The empty folder needed to be there for docker to make it the default path in the container, but once you run one the above commands,
+you will get the issue where your folder looks like: ~/{example-path}/{appname}-project/{appname}/{appname}
+
+So I simply enter the duplicate {appname} and move everything into the parent folder with the command below on PowerShell (ask AI to replicate the command for Mac or Linux if you need).
+```sh
+Get-ChildItem -Path . | Move-Item -Destination ..
+cd ../
+rm {appname}
+```
+
+## Step 6: Set up Vite and the ENV file
+#### make sure db creds in `.env` match those in the docker-compose.yml `mysql environment variables`.
 ```sh
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=appex
-DB_USERNAME=appex_user
-DB_PASSWORD=appex_pass
-
+DB_DATABASE={appname}
+DB_USERNAME={appname}_user
+DB_PASSWORD={appname}_pass
+```
+Also make sure this is in the env file for vite to use
+```sh
 VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
 VITE_PUSHER_HOST="${PUSHER_HOST}"
 VITE_PUSHER_PORT="${PUSHER_PORT}"
@@ -76,39 +136,10 @@ VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 ```
 
-Once you your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
+Now that your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
 
-## Step 4: Build with Docker 
-docker compose -p {appname} build
 
-```sh
-cd ~/example-path/appex-project/dockerdir
-docker compose -p appex build 
-```
-
-Once the containers are built, you can launch the newly created Docker environment.
-
-```sh
-cd ~/example-path/appex-project/
-docker compose -p appex up -d
-```
-
-After the above command, there should be 4 containers running: Nginx, MySQL, App, & Redis.
-
-## Step 4: Install & Start the App
-Now enter the app container
-
-```sh
-docker compose ps
-```
-
-The command above will display a list of running containers. Copy the id of the app container.
-
-```sh
-docker exec -it {app_container_id} bash
-```
-
-once inside the var/www directory, run the following commands in order.
+from inside the container's '/var/www/' directory, run the following commands in order.
 
 ```sh
 composer install
