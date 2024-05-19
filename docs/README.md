@@ -107,10 +107,14 @@ Or
 composer create-project laravel/laravel {appname}
 ```
 
-The empty folder needed to be there for docker to make it the default path in the container, but once you run one the above commands,
-you will get the issue where your folder looks like: ~/{example-path}/{appname}-project/{appname}/{appname}
+The empty folder needed to be there for docker to make it the default path in the container, but once you run one the above commands&mdash; you will get a repeat folder issue that looks like: 
 
-So I simply enter the duplicate {appname} and move everything into the parent folder with the command below on PowerShell (ask AI to replicate the command for Mac or Linux if you need).
+```sh
+~/{example-path}/{appname}-project/{appname}/{appname}
+```
+To fix this, simply move the second {appname} and everything inside into the parent.
+
+PowerShell command below: 
 ```sh
 Get-ChildItem -Path . | Move-Item -Destination ..
 cd ../
@@ -136,11 +140,15 @@ VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
 VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 ```
 
-Now that your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
+#### Now that your app is in the project directory, replace the vite-config.js with the one that comes with this repo.
 
+Add vite to welcome blade for testing
+```sh
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+```
 
-from inside the container's '/var/www/' directory, run the following commands in order.
-
+#### from inside the container's '/var/www/' directory, run the following commands in order.
 ```sh
 composer install
 npm install --save-dev @vitejs/plugin-vue
