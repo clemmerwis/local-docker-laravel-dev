@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install system dependencies, Node.js, Vite, and PHP extensions
+# Install system dependencies, Node.js, and PHP extensions
 RUN apt-get update && apt-get install -y \
     libmemcached-dev \
     git \
@@ -38,13 +38,8 @@ RUN apt-get update && apt-get install -y \
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create a new user and set ownership
-RUN useradd -m myuser \
-    && chown -R myuser:myuser /var/www/
-
 # Set working directory
 WORKDIR /var/www/
 
-# Grant full permissions to /var/www directory and its subdirectories
+# Grant full permissions to /var/www directory
 RUN chmod -R 777 /var/www
-

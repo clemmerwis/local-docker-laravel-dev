@@ -1,53 +1,52 @@
 version: '3'
-
 services:
   mysql:
     image: mysql:latest
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=my-secret-pw
-      - MYSQL_DATABASE=appex
-      - MYSQL_USER=appex_user
-      - MYSQL_PASSWORD=appex_pass
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
     volumes:
-      - appex-mysql-data:/var/lib/mysql
+      - ${MYSQL_VOLUME_NAME}:/var/lib/mysql
     networks:
-      - appex-network
-
+      - ${NETWORK_NAME}
+      
   app:
     build:
       context: ./
-      dockerfile: Dockerfile.dev
-    working_dir: /var/www/
+      dockerfile: ${DOCKERFILE_NAME}
+    working_dir: ${WORK_DIR}
     restart: unless-stopped
     volumes:
-      - ~/myComp/web-work/local-docker-dev/appex-project/appex:/var/www
+      - ${APP_PATH}:${WORK_DIR}
+      - ./docker-compose/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     ports:
-      - "9000:9000"
-      - "5173:5173" # For Vite (vite default port is 5173)
+      - "${PHP_PORT}:9000"
+      - "${VITE_PORT}:5173"
     depends_on:
       - mysql
     networks:
-      - appex-network
-
+      - ${NETWORK_NAME}
+      
   nginx:
     image: nginx:alpine
     ports:
-      - 80:80
+      - ${NGINX_PORT}:80
     depends_on:
       - app
     volumes:
-      - ~/myComp/web-work/local-docker-dev/appex-project/appex:/var/www
-      - ./docker-compose/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ${APP_PATH}:${WORK_DIR}
+      - ${NGINX_CONFIG_PATH}:/etc/nginx/conf.d/default.conf
     restart: unless-stopped
     networks:
-      - appex-network
-
+      - ${NETWORK_NAME}
+      
 volumes:
-  appex-mysql-data:
-
-
+  ${MYSQL_VOLUME_NAME}:
+  
 networks:
-  appex-network:
+  ${NETWORK_NAME}:
