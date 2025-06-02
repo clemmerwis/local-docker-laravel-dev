@@ -12,7 +12,7 @@ cd ~/{app-path}/{appname}-project/
 git clone git@github.com:clemmerwis/local-docker-laravel-dev.git
 moveEverythingIntoParentFolder
 cd ../
-rm rm ./local-docker-laravel-dev
+rm ./local-docker-laravel-dev
 
 Result:
 appname-project/
